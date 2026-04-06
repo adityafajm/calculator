@@ -1,110 +1,169 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Calculator</title>
+    <title>Calkyl</title>
     <style>
         body {
-            font-family: Arial;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            height:100vh;
-        }
+    font-family: 'Segoe UI';
+    background: #dcdcdc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+
+    overflow-x: hidden; /* 🔥 biar gak geser */
+}
+
+        .app {
+    display: flex;
+    background: #f5f5f5;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    overflow: hidden;
+
+    /* 🔥 TAMBAHAN */
+    width: 140px;       /* tambah 30% */
+    max-width: 1000px; /* biar gak kelebaran */
+}
 
         .calculator {
-            width:300px;
-            border-radius:20px;
-            padding:20px;
+    padding: 20px;
+    width: 60%; /* 🔥 sebelumnya 300px */
+}
+
+        .display-small {
+            color: gray;
         }
 
         .display {
-            font-size:30px;
-            margin-bottom:10px;
-            text-align:right;
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
         }
 
         button {
-            width:60px;
-            height:60px;
-            margin:5px;
-            border:none;
-            border-radius:10px;
-            font-size:18px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
         }
 
-        /* THEMES */
-        .dark { background:#2C2C2C; color:white; }
-        .light { background:#f5f5f5; color:black; }
+        .num {
+            background: #e6e6e6;
+        }
 
-        .pastel { background:#81A6C6; }
-        .vintage { background:#A47251; }
-        .retro { background:#2C687B; }
+        .op {
+            background: #1976d2;
+            color: white;
+        }
+
+        .equal {
+            grid-row: span 2;
+            border-radius: 30px;
+            height: 130px;
+        }
+
+        .history {
+    width: 40%;
+    padding: 20px;
+    border-left: 1px solid #ccc;
+}
+
+        .history-item {
+            margin-bottom: 10px;
+        }
 
     </style>
 </head>
 <body>
 
-<div class="calculator dark" id="calc">
-    <div class="display" id="display">0</div>
+<div class="app">
 
-    <div>
-        <button onclick="clearDisplay()">C</button>
-        <button onclick="setTheme('dark')">🌙</button>
-        <button onclick="setTheme('light')">☀️</button>
-        <button onclick="setTheme('pastel')">P</button>
-        <button onclick="setTheme('vintage')">V</button>
-        <button onclick="setTheme('retro')">R</button>
+    <!-- CALCULATOR -->
+    <div class="calculator">
+        <div class="display-small" id="exp"></div>
+        <div class="display" id="display">0</div>
+
+        <div class="buttons">
+
+            <button class="num" onclick="clearDisplay()">AC</button>
+            <button class="num" onclick="append('/')">/</button>
+            <button class="num" onclick="append('*')">x</button>
+            <button class="num" onclick="append('-')">-</button>
+
+            <button class="num" onclick="append('7')">7</button>
+            <button class="num" onclick="append('8')">8</button>
+            <button class="num" onclick="append('9')">9</button>
+            <button class="op" onclick="append('+')">+</button>
+
+            <button class="num" onclick="append('4')">4</button>
+            <button class="num" onclick="append('5')">5</button>
+            <button class="num" onclick="append('6')">6</button>
+            <button class="op equal" onclick="calculate()">=</button>
+
+            <button class="num" onclick="append('1')">1</button>
+            <button class="num" onclick="append('2')">2</button>
+            <button class="num" onclick="append('3')">3</button>
+
+            <button class="num" onclick="append('0')">0</button>
+            <button class="num" onclick="append('.')">.</button>
+
+        </div>
     </div>
 
-    <div>
-        <button onclick="append('7')">7</button>
-        <button onclick="append('8')">8</button>
-        <button onclick="append('9')">9</button>
-        <button onclick="append('/')">÷</button>
+    <!-- HISTORY -->
+    <div class="history">
+        <h3>History</h3>
+        <div id="history"></div>
     </div>
 
-    <div>
-        <button onclick="append('4')">4</button>
-        <button onclick="append('5')">5</button>
-        <button onclick="append('6')">6</button>
-        <button onclick="append('*')">×</button>
-    </div>
-
-    <div>
-        <button onclick="append('1')">1</button>
-        <button onclick="append('2')">2</button>
-        <button onclick="append('3')">3</button>
-        <button onclick="append('-')">-</button>
-    </div>
-
-    <div>
-        <button onclick="append('0')">0</button>
-        <button onclick="calculate()">=</button>
-        <button onclick="append('+')">+</button>
-    </div>
 </div>
 
 <script>
 let display = document.getElementById('display');
+let exp = document.getElementById('exp');
+let history = document.getElementById('history');
 
 function append(val){
-    display.innerText += val;
+    // 🔥 FIX BUG 0
+    if(display.innerText === '0' && !isOperator(val)){
+        display.innerText = val;
+    } else {
+        display.innerText += val;
+    }
+}
+
+function isOperator(val){
+    return ['+','-','*','/','.'].includes(val);
 }
 
 function clearDisplay(){
     display.innerText = '0';
+    exp.innerText = '';
 }
 
 function calculate(){
     try {
-        display.innerText = eval(display.innerText);
+        let expression = display.innerText;
+        let result = eval(expression);
+
+        history.innerHTML += `
+            <div class="history-item">
+                ${expression} = <b>${result}</b>
+            </div>
+        `;
+
+        exp.innerText = expression;
+        display.innerText = result;
     } catch {
         display.innerText = 'Error';
     }
-}
-
-function setTheme(theme){
-    document.getElementById('calc').className = 'calculator ' + theme;
 }
 </script>
 
